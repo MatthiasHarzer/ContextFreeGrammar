@@ -1,6 +1,5 @@
 package grammar;
 
-import symbols.Concat;
 import symbols.VariableSymbol;
 
 import java.util.ArrayList;
@@ -46,8 +45,5 @@ public class ContextFreeGrammar {
         return production;
     }
 
-    public boolean accepts(Concat word){
-
-    }
 
 }

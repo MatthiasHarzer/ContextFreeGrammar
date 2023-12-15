@@ -1,7 +1,7 @@
 package symbols;
 
 public abstract class Symbol {
-    public static Epsilon epsilon() {
+    public static Epsilon defaultEpsilon() {
         return new Epsilon();
     }
 

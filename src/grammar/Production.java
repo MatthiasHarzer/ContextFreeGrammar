@@ -1,35 +1,37 @@
 package grammar;
 
 import symbols.Symbol;
-import symbols.Concat;
+import symbols.Word;
 import symbols.VariableSymbol;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
 public class Production {
     public final VariableSymbol start;
-    public List<Concat> results;
+    public List<Word> results;
 
-    public Production(VariableSymbol start, Concat... results) {
+    public Production(VariableSymbol start, Word... results) {
         this.start = start;
-        this.results = List.of(results);
+        this.results = new ArrayList<>();
+        this.results.addAll(List.of(results));
     }
 
     public static Production from(VariableSymbol start) {
-        return new Production(start, Concat.empty());
+        return new Production(start, Word.empty());
     }
 
     public Production to(Symbol... symbols) {
-        return this.to(new Concat(symbols));
+        return this.to(new Word(symbols));
     }
 
-    public Production to(Concat result) {
+    public Production to(Word result) {
         this.results.add(result);
         return this;
     }
 
-    public Production or(Concat result) {
+    public Production or(Word result) {
         return this.to(result);
     }
 

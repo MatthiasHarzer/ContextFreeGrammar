@@ -1,6 +1,9 @@
 package grammar;
 
+import symbols.Word;
+import symbols.Symbol;
 import symbols.TerminalSymbol;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,9 +40,8 @@ public class Alphabet {
         }
     }
 
-    public boolean add(TerminalSymbol symbol) {
-        if (hasSymbol(symbol.identifier)) return false;
-        return symbols.add(symbol);
+    public boolean add(TerminalSymbol... symbol) {
+        return symbols.addAll(Arrays.asList(symbol));
     }
 
     public boolean add(String identifier) {
@@ -47,6 +49,16 @@ public class Alphabet {
         TerminalSymbol symbol = new TerminalSymbol(identifier);
 
         return symbols.add(symbol);
+    }
+
+    public Word parse(String input) {
+        Symbol[] word = new Symbol[input.length()];
+        for (int i = input.length() - 1; i >= 0; i--) {
+            TerminalSymbol symbol = getSymbol(input.charAt(i) + "");
+            if (symbol == null) return null;
+            word[i] = symbol;
+        }
+        return new Word(word);
     }
 
 }
