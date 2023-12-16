@@ -1,3 +1,5 @@
+package examples.example1;
+
 import context_free_acceptor.ContextFreeAcceptor;
 import grammar.ContextFreeGrammar;
 import grammar.Production;
@@ -8,32 +10,47 @@ import symbols.StackSymbol;
 import symbols.TerminalSymbol;
 import symbols.VariableSymbol;
 
-
-public class Test {
+/**
+ * This is a simple example of how to use Context Free Grammars or Pushdown Automata.
+ * <br />
+ * The language of this example should match the following:
+ * Any word w ∈ {a, b}+ followed by a $ followed by the reverse of w.
+ * For example: abb$bba, a$a, bab$bab, ...
+ * <br /><br />
+ *
+ * The Context Free Grammar can easily be described by the following rules:
+ * S -> aSa | bSb | a$a | b$b
+ *<br /><br />
+ *
+ * The Pushdown Automaton can be described by the following rules:
+ * <code>
+ * z0, a, # -> z1, #A
+ * z0, b, # -> z1, #B
+ * z1, a, # -> z1, #A
+ * z1, b, # -> z1, #B
+ * z1, $, # -> z1, ε
+ * z1, a, A -> z1, ε
+ * z1, b, B -> z1, ε
+ * </code>
+ *
+ */
+public class Example {
     public static void main(String[] args) {
+        // cfg() and pda() define the same language
 
         var pda = pda();
-
         var cfg = cfg();
-        var pda2 = PDA.fromCFG(cfg);
 
+        var pda2 = PDA.fromCFG(cfg); // this is how you can convert a CFG to a PDA
+
+        System.out.println("Testing PDA:");
         testCFA(pda);
         System.out.println("----");
+        System.out.println("Testing CFG:");
         testCFA(cfg);
         System.out.println("----");
+        System.out.println("Testing PDA from CFG:");
         testCFA(pda2);
-
-    }
-
-    private static void testCFA(ContextFreeAcceptor cfa) {
-        var alphabet = cfa.getAlphabet();
-        var word = alphabet.parse("abb$bba");
-        var word2 = alphabet.parse("abb$bbba");
-        var word3 = alphabet.parse("aababb$bbabaa");
-
-        System.out.println(cfa.accepts(word)); // true
-        System.out.println(cfa.accepts(word2)); // false
-        System.out.println(cfa.accepts(word3)); // true
     }
 
     private static ContextFreeGrammar cfg() {
@@ -78,7 +95,7 @@ public class Test {
 
         pda.addFn(
                 Function.from(z0, a, stackDefault)
-                        .to(z0, stackDefault, A)
+                        .to(z1, stackDefault, A)
         );
         pda.addFn(
                 Function.from(z0, b, stackDefault)
@@ -106,5 +123,23 @@ public class Test {
         );
 
         return pda;
+    }
+
+    private static void testCFA(ContextFreeAcceptor cfa) {
+        Object[][] tests = {
+                {"a$a", true},
+                {"abb$bba", true},
+                {"ab$ab", false},
+                {"ab$", false},
+                {"abaabb$bbaaba", true}
+        };
+
+        for (Object[] test : tests) {
+            String word = (String) test[0];
+            boolean expected = (boolean) test[1];
+            boolean actual = cfa.accepts(word);
+            boolean success = expected == actual;
+            System.out.println("[" + (success ? "PASSED" : "FAILED") + "] " + word + " -> " + actual + " (expected: " + expected + ")");
+        }
     }
 }
