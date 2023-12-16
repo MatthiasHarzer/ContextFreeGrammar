@@ -1,8 +1,10 @@
-package examples.example1;
+package examples;
 
 import context_free_acceptor.ContextFreeAcceptor;
 import grammar.ContextFreeGrammar;
 import grammar.Production;
+import parser.CFGParser;
+import parser.PDAParser;
 import pushdown_automaton.PDA;
 import pushdown_automaton.State;
 import pushdown_automaton.functions.Function;
@@ -33,7 +35,7 @@ import symbols.VariableSymbol;
  * z1, b, B -> z1, ε
  * </code>
  */
-public class Example {
+public class Example1 {
     public static void main(String[] args) {
         // cfg() and pda() define the same language
 
@@ -124,22 +126,16 @@ public class Example {
         return pda;
     }
 
-    private static void testCFA(ContextFreeAcceptor cfa) {
-        Object[][] tests = {
-                {"a$a", true},
-                {"abb$bba", true},
-                {"ab$ab", false},
-                {"ab$", false},
-                {"abaabb$bbaaba", true},
-                {"abc$cba", false}
+    public static void testCFA(ContextFreeAcceptor cfa) {
+        TestCFA[] tests = {
+                new TestCFA("a$a", true),
+                new TestCFA("abb$bba", true),
+                new TestCFA("ab$ab", false),
+                new TestCFA("ab$", false),
+                new TestCFA("abaabb$bbaaba", true),
+                new TestCFA("abc$cba", false)
         };
 
-        for (Object[] test : tests) {
-            String word = (String) test[0];
-            boolean expected = (boolean) test[1];
-            boolean actual = cfa.accepts(word);
-            boolean success = expected == actual;
-            System.out.println("[" + (success ? "PASSED" : "FAILED") + "] " + word + " -> " + actual + " (expected: " + expected + ")");
-        }
+        TestCFA.testCFA(cfa, tests);
     }
 }
