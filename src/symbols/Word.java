@@ -2,24 +2,38 @@ package symbols;
 
 import java.util.List;
 
+/**
+ * Represents a word of a grammar.
+ * @param symbols The symbols of the word.
+ */
 public record Word(Symbol... symbols) {
 
     public static Word empty() {
         return new Word();
     }
 
+    public int length() {
+        return symbols.length;
+    }
 
     public boolean isEmpty() {
         return symbols.length == 0;
     }
 
+    /**
+     * Get the first symbol of the word (rtl)
+     * @return The first symbol of the word
+     */
     public Symbol peek() {
         if (isEmpty()) return Symbol.defaultEpsilon();
 
         return symbols[symbols.length - 1];
     }
 
-
+    /**
+     * Remove the first symbol from the word and return it (rtl)
+     * @return A new word without the first symbol
+     */
     public Word popAndClone() {
         if (isEmpty()) return new Word();
 

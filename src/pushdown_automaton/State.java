@@ -1,10 +1,12 @@
 package pushdown_automaton;
 
-public class State {
-    public final String identifier;
-
-    public State(String identifier) {
-        this.identifier = identifier;
-    }
+/**
+ * Represents a state of a pushdown automaton.
+ *
+ * @param identifier The identifier of the state.
+ *
+ * @author Matthias Harzer
+ */
+public record State(String identifier) {
 
 }

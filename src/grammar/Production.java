@@ -1,13 +1,21 @@
 package grammar;
 
 import symbols.Symbol;
+import symbols.TerminalSymbol;
 import symbols.Word;
 import symbols.VariableSymbol;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * A production is a rule of the form A -> α, where A is a {@link VariableSymbol} and α is a {@link Word}.
+ *
+ * @see ContextFreeGrammar
+ * @author Matthias Harzer
+ */
 public class Production {
     public final VariableSymbol start;
     public List<Word> results;
@@ -37,6 +45,17 @@ public class Production {
 
     public Production or(Symbol... symbols) {
         return this.to(symbols);
+    }
+
+    /**
+     * Returns all {@link TerminalSymbol TerminalSymbols} that are involved in the production.
+     */
+    public TerminalSymbol[] getTerminals() {
+        return results.stream()
+                .flatMap(w -> Arrays.stream(w.symbols()))
+                .filter(s -> s instanceof TerminalSymbol)
+                .map(s -> (TerminalSymbol) s)
+                .toArray(TerminalSymbol[]::new);
     }
 
     @Override

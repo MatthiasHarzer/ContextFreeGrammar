@@ -3,36 +3,71 @@ import grammar.ContextFreeGrammar;
 import grammar.Production;
 import pushdown_automaton.PDA;
 import pushdown_automaton.State;
-import pushdown_automaton.functions.*;
+import pushdown_automaton.functions.Function;
 import symbols.StackSymbol;
 import symbols.TerminalSymbol;
+import symbols.VariableSymbol;
 
-import java.util.List;
 
 public class Test {
     public static void main(String[] args) {
-        var alphabet = new Alphabet("a", "b", "c", "e", "f", "g", "h", "i", "j", "$");
-        var grammar = new ContextFreeGrammar(alphabet);
 
-        var S = grammar.variable("S");
-        var A = grammar.variable("A");
-        var B = grammar.variable("B");
+//        pda();
+        cfg();
 
-        var a = alphabet.getSymbol("a");
-        var b = alphabet.getSymbol("b");
-        var c = alphabet.getSymbol("c");
-        var d = alphabet.getSymbol("$");
+    }
+
+    private static void cfg() {
+        var a = new TerminalSymbol("a");
+        var b = new TerminalSymbol("b");
+        var d = new TerminalSymbol("$");
+//        var alphabet = new Alphabet(a, b, d);
+        var S = new VariableSymbol("S");
+
+        var grammar = new ContextFreeGrammar(S);
 
         grammar.addProduction(
                 Production
                         .from(S)
-                        .to(a, S, b)
-                        .or(a, b)
+                        .to(a, d, a)
+                        .or(b, d, b)
+                        .or(a, S, a)
+                        .or(b, S, b)
         );
 
-        pda();
+        var pda = PDA.fromCFG(grammar);
 
+        var alphabet = pda.getAlphabet();
+        var word = alphabet.parse("abb$bba");
+        var word2 = alphabet.parse("abb$bbba");
+        var word3 = alphabet.parse("aababb$bbabaa");
+
+        System.out.println(grammar.accepts(word));
+        System.out.println(grammar.accepts(word2));
+        System.out.println(grammar.accepts(word3));
+
+        System.out.println("--------------------");
+
+
+        testPda(pda);
+
+        System.out.println("--------------------");
+
+
+        pda();
     }
+
+    private static void testPda(PDA pda) {
+        var alphabet = pda.getAlphabet();
+        var word = alphabet.parse("abb$bba");
+        var word2 = alphabet.parse("abb$bbba");
+        var word3 = alphabet.parse("aababb$bbabaa");
+
+        System.out.println(pda.accepts(word));
+        System.out.println(pda.accepts(word2));
+        System.out.println(pda.accepts(word3));
+    }
+
 
     private static void pda() {
         var a = new TerminalSymbol("a");
@@ -52,46 +87,39 @@ public class Test {
 
 
         var pda = new PDA(
-                List.of(z0, z1),
                 z0
         );
 
         pda.addFn(
-                new From(z0, a, stackDefault),
-                new To(z1, stackDefault, A)
+                Function.from(z0, a, stackDefault)
+                        .to(z0, stackDefault, A)
         );
         pda.addFn(
-                new From(z0, b, stackDefault),
-                new To(z1, stackDefault, B)
+                Function.from(z0, b, stackDefault)
+                        .to(z1, stackDefault, B)
         );
         pda.addFn(
-                new From(z1, a, stackDefault),
-                new To(z1, stackDefault, A)
+                Function.from(z1, a, stackDefault)
+                        .to(z1, stackDefault, A)
         );
         pda.addFn(
-                new From(z1, b, stackDefault),
-                new To(z1, stackDefault, B)
+                Function.from(z1, b, stackDefault)
+                        .to(z1, stackDefault, B)
         );
         pda.addFn(
-                new From(z1, d, stackDefault),
-                new To(z1, epsilon)
+                Function.from(z1, d, stackDefault)
+                        .to(z1, epsilon)
         );
         pda.addFn(
-                new From(z1, a, A),
-                new To(z1, epsilon)
+                Function.from(z1, a, A)
+                        .to(z1, epsilon)
         );
         pda.addFn(
-                new From(z1, b, B),
-                new To(z1, epsilon)
+                Function.from(z1, b, B)
+                        .to(z1, epsilon)
         );
 
-        var word = alphabet.parse("abb$bba");
-        var word2 = alphabet.parse("abb$bbba");
-        var word3 = alphabet.parse("aababb$bbabaa");
-
-        System.out.println(pda.accepts(word));
-        System.out.println(pda.accepts(word2));
-        System.out.println(pda.accepts(word3));
+        testPda(pda);
 
 
     }

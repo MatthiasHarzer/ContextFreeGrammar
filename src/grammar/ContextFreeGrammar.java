@@ -1,43 +1,49 @@
 package grammar;
 
+import pushdown_automaton.PDA;
+import symbols.TerminalSymbol;
 import symbols.VariableSymbol;
+import context_free_acceptor.ContextFreeAcceptor;
+import symbols.Word;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class ContextFreeGrammar {
-    private final List<VariableSymbol> variables;
-    private final Alphabet alphabet;
+
+/**
+ * A context-free grammar is a 4-tuple (V, Σ, P, S) where V is a finite set of variables, Σ is a finite set of terminals,
+ * P is a finite set of productions, and S is a start variable.
+ *
+ * @author Matthias Harzer
+ */
+public class ContextFreeGrammar implements ContextFreeAcceptor{
     private final Map<VariableSymbol, Production> productions;
+    public final VariableSymbol start;
 
-    public ContextFreeGrammar(Alphabet alphabet) {
-        this.variables = new ArrayList<>();
+    public ContextFreeGrammar(VariableSymbol start) {
         this.productions = new HashMap<>();
-        this.alphabet = alphabet;
+        this.start = start;
     }
 
     private boolean hasProduction(Production production) {
         return productions.values().stream().anyMatch(p -> p.equals(production));
     }
 
-    private VariableSymbol getVariable(String identifier){
-        return variables.stream().filter(v -> v.identifier.equals(identifier)).findFirst().orElse(null);
+
+    public List<VariableSymbol> getVariables() {
+        return productions.keySet().stream().toList();
     }
 
-    private boolean hasVariable(String identifier) {
-        return variables.stream().anyMatch(v -> v.identifier.equals(identifier));
+    public Alphabet getAlphabet() {
+        TerminalSymbol[] terminals = productions.values().stream()
+                .flatMap(p -> Arrays.stream(p.getTerminals()))
+                .distinct()
+                .toArray(TerminalSymbol[]::new);
+
+        return new Alphabet(terminals);
     }
 
-    public VariableSymbol variable(String identifier)  {
-        VariableSymbol existing = getVariable(identifier);
-        if (existing != null) return existing;
-
-        VariableSymbol v = new VariableSymbol(identifier);
-        variables.add(v);
-
-        return v;
+    public Map<VariableSymbol, Production> getProductions() {
+        return productions;
     }
 
     public Production addProduction(Production production) {
@@ -45,5 +51,9 @@ public class ContextFreeGrammar {
         return production;
     }
 
+    public boolean accepts(Word word) {
+        PDA pda = PDA.fromCFG(this);
+        return pda.accepts(word);
+    }
 
 }

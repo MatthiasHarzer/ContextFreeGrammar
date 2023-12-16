@@ -1,5 +1,9 @@
 package pushdown_automaton;
 
+import context_free_acceptor.ContextFreeAcceptor;
+import grammar.Alphabet;
+import grammar.ContextFreeGrammar;
+import grammar.Production;
 import pushdown_automaton.functions.From;
 import pushdown_automaton.functions.Function;
 import pushdown_automaton.functions.To;
@@ -9,32 +13,54 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
-public class PDA {
+/**
+ * A <a href="https://en.wikipedia.org/wiki/Pushdown_automaton">Push Down Automaton (Kellerautomat)</a> is a <a href="https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton">non-deterministic finite state machine</a> with a stack.
+ * A PDA is able to accept a {@link ContextFreeGrammar}.
+ *
+ * @author Matthias Harzer
+ */
+public class PDA implements ContextFreeAcceptor {
     private final Stack stack;
-    private final List<State> states;
     private final List<Function> functions;
     private final State initialState;
 
-    public PDA(List<State> state, State initialState) {
-        this(state, new ArrayList<>(), initialState);
+    public PDA(State initialState) {
+        this(new ArrayList<>(), initialState);
     }
 
-    public PDA(List<State> states, List<Function> functions, State initialState, Stack stack) {
+    public PDA(List<Function> functions, State initialState, Stack stack) {
         this.stack = stack;
-        this.states = states;
         this.functions = functions;
         this.initialState = initialState;
     }
 
-    public PDA(List<State> states, List<Function> functions, State initialState) {
-        this(states, functions, initialState, new Stack());
+    public PDA(List<Function> functions, State initialState) {
+        this(functions, initialState, new Stack());
         this.stack.add(StackSymbol.START_SYMBOL);
+    }
+
+    public List<State> getStates(){
+        return functions.stream()
+                .flatMap(fn -> Arrays.stream(fn.getStates()))
+                .distinct()
+                .toList();
+    }
+
+    public Alphabet getAlphabet(){
+        TerminalSymbol[] terminals = functions.stream()
+                .map(fn ->fn.start().terminalSymbol())
+                .distinct()
+                .toArray(TerminalSymbol[]::new);
+
+        return new Alphabet(terminals);
     }
 
     private Function[] findMatchingFunctions(State state, Symbol terminalSymbol, Symbol stackSymbol) {
         return functions.stream()
-                .filter(fn -> fn.start().matches(state, terminalSymbol, stackSymbol))
+                .filter(fn ->
+                        fn.start().matches(state, terminalSymbol, stackSymbol)
+                                || fn.start().matches(state, TerminalSymbol.EPSILON, stackSymbol) // Spontaneous transition
+                )
                 .toArray(Function[]::new);
     }
 
@@ -61,7 +87,7 @@ public class PDA {
 
         Symbol terminalSymbol = input.peek();
         Symbol stackSymbol = stack.peek();
-        Word remainingInput = input.popAndClone();
+        Word remainingInput = input;
 
         Function[] matchingFunctions = findMatchingFunctions(configuration.state(), terminalSymbol, stackSymbol);
 
@@ -70,6 +96,9 @@ public class PDA {
         for (Function fn : matchingFunctions) {
             for (To result : fn.results()) {
                 Stack newStack = new Stack(stack);
+                if (!fn.start().terminalSymbol().equals(TerminalSymbol.EPSILON)) {
+                    remainingInput = input.popAndClone();
+                }
                 newStack.pop();
 
                 newStack.addAllReversed(List.of(result.stackSymbols()));
@@ -110,6 +139,52 @@ public class PDA {
         }
 
         return false;
+    }
+
+    /**
+     * Converts a {@link ContextFreeGrammar} to a {@link PDA
+     *
+     * @param cfg
+     * @return
+     */
+    public static PDA fromCFG(ContextFreeGrammar cfg) {
+        State z = new State("z");
+        PDA pda = new PDA(z);
+
+
+        for (Production production : cfg.getProductions().values()) {
+            boolean isStart = production.start.equals(cfg.start); // Is start symbol: S -> #
+            StackSymbol A = isStart ? StackSymbol.START_SYMBOL : production.start.asStackSymbol();
+
+            List<To> results = new ArrayList<>();
+
+            for (Word result : production.results) {
+                StackSymbol[] alpha = Arrays.stream(result.symbols())
+                        // Make sure to replace the start symbol with the stack start symbol (S -> #)
+                        .map(s -> s.equals(cfg.start) ? StackSymbol.START_SYMBOL : s.asStackSymbol())
+                        .toArray(StackSymbol[]::new);
+
+                if (alpha.length > 0) { // Don't add functions with epsilon transitions
+                    results.add(new To(z, alpha));
+                }
+
+            }
+            pda.addFn(
+                    new From(z, TerminalSymbol.EPSILON, A),
+                    results.toArray(new To[0])
+            );
+        }
+
+        for (TerminalSymbol symbol : cfg.getAlphabet()) {
+            StackSymbol a = symbol.asStackSymbol();
+            pda.addFn(
+                    new From(z, symbol, a),
+                    new To(z, StackSymbol.EPSILON)
+            );
+        }
+
+
+        return pda;
     }
 
 

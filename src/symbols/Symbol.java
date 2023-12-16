@@ -1,10 +1,23 @@
 package symbols;
 
+/**
+ * A symbol of a grammar.
+ *
+ * @see StackSymbol
+ * @see TerminalSymbol
+ * @see VariableSymbol
+ * @see Epsilon
+ *
+ * @author Matthias Harzer
+ */
 public abstract class Symbol {
+    /**
+     * The default epsilon symbol.
+     * @return The default epsilon symbol.
+     */
     public static Epsilon defaultEpsilon() {
         return new Epsilon();
     }
-
 
     public final String identifier;
 
@@ -12,16 +25,20 @@ public abstract class Symbol {
         this.identifier = identifier;
     }
 
-    public boolean isTerminal() {
-        return this instanceof TerminalSymbol;
+    public TerminalSymbol asTerminal() {
+        return new TerminalSymbol(identifier);
     }
 
-    public boolean isVariable() {
-        return this instanceof VariableSymbol;
+    public VariableSymbol asVariable() {
+        return new VariableSymbol(identifier);
     }
 
-    public boolean isStackSymbol() {
-        return this instanceof StackSymbol;
+    public StackSymbol asStackSymbol() {
+        return new StackSymbol(identifier);
+    }
+
+    public boolean isEpsilon() {
+        return this == TerminalSymbol.EPSILON || this == StackSymbol.EPSILON || this instanceof Epsilon;
     }
 
 
