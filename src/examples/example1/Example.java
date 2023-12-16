@@ -17,11 +17,11 @@ import symbols.VariableSymbol;
  * Any word w ∈ {a, b}+ followed by a $ followed by the reverse of w.
  * For example: abb$bba, a$a, bab$bab, ...
  * <br /><br />
- *
+ * <p>
  * The Context Free Grammar can easily be described by the following rules:
  * S -> aSa | bSb | a$a | b$b
- *<br /><br />
- *
+ * <br /><br />
+ * <p>
  * The Pushdown Automaton can be described by the following rules:
  * <code>
  * z0, a, # -> z1, #A
@@ -32,7 +32,6 @@ import symbols.VariableSymbol;
  * z1, a, A -> z1, ε
  * z1, b, B -> z1, ε
  * </code>
- *
  */
 public class Example {
     public static void main(String[] args) {
@@ -131,7 +130,8 @@ public class Example {
                 {"abb$bba", true},
                 {"ab$ab", false},
                 {"ab$", false},
-                {"abaabb$bbaaba", true}
+                {"abaabb$bbaaba", true},
+                {"abc$cba", false}
         };
 
         for (Object[] test : tests) {

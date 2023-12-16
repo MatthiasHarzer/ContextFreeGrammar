@@ -118,6 +118,8 @@ public class PDA implements ContextFreeAcceptor {
      * @return Whether the PDA accepts the word
      */
     public boolean accepts(Word word) {
+        if (word == null) return false;
+
         Configuration[] configurations = new Configuration[]{new Configuration(initialState, word, stack)};
 
         while (configurations.length > 0) {
