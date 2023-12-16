@@ -1,4 +1,4 @@
-import grammar.Alphabet;
+import context_free_acceptor.ContextFreeAcceptor;
 import grammar.ContextFreeGrammar;
 import grammar.Production;
 import pushdown_automaton.PDA;
@@ -12,16 +12,35 @@ import symbols.VariableSymbol;
 public class Test {
     public static void main(String[] args) {
 
-//        pda();
-        cfg();
+        var pda = pda();
+
+        var cfg = cfg();
+        var pda2 = PDA.fromCFG(cfg);
+
+        testCFA(pda);
+        System.out.println("----");
+        testCFA(cfg);
+        System.out.println("----");
+        testCFA(pda2);
 
     }
 
-    private static void cfg() {
+    private static void testCFA(ContextFreeAcceptor cfa) {
+        var alphabet = cfa.getAlphabet();
+        var word = alphabet.parse("abb$bba");
+        var word2 = alphabet.parse("abb$bbba");
+        var word3 = alphabet.parse("aababb$bbabaa");
+
+        System.out.println(cfa.accepts(word)); // true
+        System.out.println(cfa.accepts(word2)); // false
+        System.out.println(cfa.accepts(word3)); // true
+    }
+
+    private static ContextFreeGrammar cfg() {
         var a = new TerminalSymbol("a");
         var b = new TerminalSymbol("b");
         var d = new TerminalSymbol("$");
-//        var alphabet = new Alphabet(a, b, d);
+
         var S = new VariableSymbol("S");
 
         var grammar = new ContextFreeGrammar(S);
@@ -34,47 +53,14 @@ public class Test {
                         .or(a, S, a)
                         .or(b, S, b)
         );
-
-        var pda = PDA.fromCFG(grammar);
-
-        var alphabet = pda.getAlphabet();
-        var word = alphabet.parse("abb$bba");
-        var word2 = alphabet.parse("abb$bbba");
-        var word3 = alphabet.parse("aababb$bbabaa");
-
-        System.out.println(grammar.accepts(word));
-        System.out.println(grammar.accepts(word2));
-        System.out.println(grammar.accepts(word3));
-
-        System.out.println("--------------------");
-
-
-        testPda(pda);
-
-        System.out.println("--------------------");
-
-
-        pda();
-    }
-
-    private static void testPda(PDA pda) {
-        var alphabet = pda.getAlphabet();
-        var word = alphabet.parse("abb$bba");
-        var word2 = alphabet.parse("abb$bbba");
-        var word3 = alphabet.parse("aababb$bbabaa");
-
-        System.out.println(pda.accepts(word));
-        System.out.println(pda.accepts(word2));
-        System.out.println(pda.accepts(word3));
+        return grammar;
     }
 
 
-    private static void pda() {
+    private static PDA pda() {
         var a = new TerminalSymbol("a");
         var b = new TerminalSymbol("b");
         var d = new TerminalSymbol("$");
-        var alphabet = new Alphabet(a, b, d);
-
 
         var A = new StackSymbol("A");
         var B = new StackSymbol("B");
@@ -119,8 +105,6 @@ public class Test {
                         .to(z1, epsilon)
         );
 
-        testPda(pda);
-
-
+        return pda;
     }
 }
