@@ -14,9 +14,6 @@ public class Example4 {
         pda.addFn("z1", "b", "B", "z1", "");
 
         System.out.println("Testing PDA from MinimalPDA:");
-        System.out.println(pda.accepts("a$b"));
-        System.out.println(pda.accepts("abb$bba"));
-        System.out.println(pda.accepts("ab$ab"));
-        System.out.println(pda.accepts("ab$"));
+        Example1.testCFA(pda);
     }
 }
