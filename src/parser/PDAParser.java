@@ -19,10 +19,12 @@ import java.util.stream.Stream;
  */
 public class PDAParser {
     private final String stackStartSymbol;
+    private String epsilon = "ε";
     private final List<StackSymbol> stackSymbols;
     private final List<State> states;
     private final List<TerminalSymbol> terminals;
     private final PDA pda;
+
 
     public PDAParser(String startState, String stackStartSymbol, String... stackSymbols) {
         this.stackStartSymbol = stackStartSymbol;
@@ -36,9 +38,17 @@ public class PDAParser {
         this.pda = new PDA(getState(startState));
     }
 
+    /**
+     * Set the string that is used as the epsilon symbol.
+     * @param epsilon the string that is used as the epsilon symbol
+     */
+    public void setEpsilon(String epsilon) {
+        this.epsilon = epsilon;
+    }
+
     private StackSymbol getStackSymbol(String identifier) {
         String strippedIdentifier = identifier.strip();
-        if (strippedIdentifier.equals("ε")) {
+        if (strippedIdentifier.equals(epsilon)) {
             return StackSymbol.EPSILON;
         }
         if (strippedIdentifier.equals(stackStartSymbol)) {
@@ -64,7 +74,7 @@ public class PDAParser {
 
     private TerminalSymbol getTerminal(String identifier) {
         String strippedIdentifier = identifier.strip();
-        if (strippedIdentifier.equals("ε")) {
+        if (strippedIdentifier.equals(epsilon)) {
             return TerminalSymbol.EPSILON;
         }
         return terminals.stream()
@@ -115,7 +125,7 @@ public class PDAParser {
 
     /**
      * Adds a function to the PDA.
-     * The function must be in the form of "z, a, A -> q, AB | q, # ..." where z and q are states, a and A are terminal symbols and A and B are stack symbols (defined in the constructor).
+     * The function must be in the form of "z, a, A -> q, AB | q, # ..." where z and q are states, a is a terminal symbol and A and B are stack symbols (defined in the constructor).
      *
      * @param function the function to be added
      */
