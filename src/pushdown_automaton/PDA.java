@@ -85,7 +85,7 @@ public class PDA implements ContextFreeAcceptor {
         Stack stack = configuration.stack();
 
 
-        Symbol terminalSymbol = input.peek();
+        Symbol terminalSymbol = input.first();
         Symbol stackSymbol = stack.peek();
         Word remainingInput = input;
 
@@ -97,7 +97,7 @@ public class PDA implements ContextFreeAcceptor {
             for (To result : fn.results()) {
                 Stack newStack = new Stack(stack);
                 if (!fn.start().terminalSymbol().equals(TerminalSymbol.EPSILON)) {
-                    remainingInput = input.popAndClone();
+                    remainingInput = input.removeFirstAndClone();
                 }
                 newStack.pop();
 

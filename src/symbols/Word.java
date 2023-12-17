@@ -24,22 +24,22 @@ public record Word(Symbol... symbols) {
      * Get the first symbol of the word (rtl)
      * @return The first symbol of the word
      */
-    public Symbol peek() {
+    public Symbol first() {
         if (isEmpty()) return Symbol.defaultEpsilon();
 
-        return symbols[symbols.length - 1];
+        return symbols[0];
     }
 
     /**
      * Remove the first symbol from the word and return it (rtl)
      * @return A new word without the first symbol
      */
-    public Word popAndClone() {
+    public Word removeFirstAndClone() {
         if (isEmpty()) return new Word();
 
         Symbol[] clone = new Symbol[symbols.length - 1];
 
-        System.arraycopy(symbols, 0, clone, 0, clone.length);
+        System.arraycopy(symbols, 1, clone, 0, clone.length);
 
         return new Word(clone);
     }
