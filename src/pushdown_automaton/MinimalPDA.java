@@ -48,19 +48,21 @@ public class MinimalPDA implements ContextFreeAcceptor {
             return new ArrayList<>();
         }
 
-        String terminalSymbol = input.substring(0, 1);
+        String symbol = input.substring(0, 1);
         String stackSymbol = stack.substring(0, 1);
 
         String newStack = stack.substring(1);
         List<String[]> configurations = new ArrayList<>();
 
         for (String[] fn : functions) {
-            if (fn[0].equals(state) && fn[1].equals(terminalSymbol) && fn[2].equals(stackSymbol)) {
+            if (!fn[0].equals(state) || !fn[2].equals(stackSymbol)) continue;
+
+            if (fn[1].equals(symbol)) {
                 String endState = fn[3];
                 String endStackSymbols = fn[4];
 
                 configurations.add(new String[]{endState, input.substring(1), endStackSymbols + newStack});
-            } else if (fn[0].equals(state) && fn[1].isEmpty() && fn[2].equals(stackSymbol)) {
+            } else if (fn[1].isEmpty()) { // spontaneous transition
                 String endState = fn[3];
                 String endStackSymbols = fn[4];
 
