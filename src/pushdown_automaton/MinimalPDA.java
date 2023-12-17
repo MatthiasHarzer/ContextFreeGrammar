@@ -17,15 +17,16 @@ import java.util.List;
  */
 public class MinimalPDA implements ContextFreeAcceptor {
     private final String stack;
+    /**
+     * A list of functions of the form <code>startState, symbol, stackSymbol, endState, endStackSymbols</code>.
+     */
     private final List<String[]> functions;
     private final String startState;
-    private final List<String> alphabet;
 
     public MinimalPDA(String startState, String startStackSymbol) {
         this.stack = startStackSymbol;
         this.functions = new ArrayList<>();
         this.startState = startState;
-        this.alphabet = new ArrayList<>();
     }
 
     public void addFn(
@@ -35,12 +36,7 @@ public class MinimalPDA implements ContextFreeAcceptor {
             String endState,
             String endStackSymbols
     ) {
-
         functions.add(new String[]{startState, symbol, stackSymbol, endState, endStackSymbols});
-
-        if (!alphabet.contains(symbol)) {
-            alphabet.add(symbol);
-        }
     }
 
     private List<String[]> advance(String[] configuration) {
@@ -107,7 +103,9 @@ public class MinimalPDA implements ContextFreeAcceptor {
 
     @Override
     public grammar.Alphabet getAlphabet() {
-        return new grammar.Alphabet(alphabet.toArray(String[]::new));
+        return new grammar.Alphabet(functions.stream()
+                .map(fn -> fn[1])
+                .toArray(String[]::new));
     }
 }
 
