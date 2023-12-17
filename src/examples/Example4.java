@@ -2,6 +2,9 @@ package examples;
 
 import pushdown_automaton.MinimalPDA;
 
+/**
+ * This example accepts the same language as Example1, but uses a MinimalPDA instead of a PDA.
+ */
 public class Example4 {
     public static void main(String[] args) {
         var pda = new MinimalPDA("z0", "#");
