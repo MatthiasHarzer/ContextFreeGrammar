@@ -19,6 +19,8 @@ public class CFGParser {
     private final List<VariableSymbol> variables;
     private final List<TerminalSymbol> terminals;
     private final ContextFreeGrammar grammar;
+    private String transitionSeparator = "->";
+    private String resultSeparator = "|";
 
     public CFGParser(String startSymbol, String... variables) {
         this.variables = new ArrayList<>();
@@ -31,6 +33,22 @@ public class CFGParser {
 
         VariableSymbol startSymbol1 = getVariable(startSymbol);
         this.grammar = new ContextFreeGrammar(startSymbol1);
+    }
+
+    /**
+     * Set the string that is used to indicate a transition (default ->).
+     * @param transitionSeparator the string that is used to indicate a transition
+     */
+    public void setTransitionSeparator(String transitionSeparator) {
+        this.transitionSeparator = transitionSeparator;
+    }
+
+    /**
+     * Set the string that is used to separate multiple results of a transition (default |), indicating multiple results of the same transition.
+     * @param resultSeparator the string that is used to separate the results of a transition
+     */
+    public void setResultSeparator(String resultSeparator) {
+        this.resultSeparator = resultSeparator;
     }
 
     private VariableSymbol getVariable(String identifier) {
@@ -66,9 +84,12 @@ public class CFGParser {
      * @param production the production to be added
      */
     public void add(String production) {
-        String[] parts = production.split("->");
+        String[] parts = ParserUtil.split(production, transitionSeparator);
+
+        if (parts.length != 2) throw new IllegalArgumentException("Production must have exactly one transition separator (" + transitionSeparator + ")");
+
         VariableSymbol start = getVariable(parts[0].strip());
-        String[] results = parts[1].split("\\|");
+        String[] results = ParserUtil.split(parts[1], resultSeparator);
 
         List<Word> words = new ArrayList<>();
 
