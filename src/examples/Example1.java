@@ -44,6 +44,12 @@ public class Example1 {
 
         var pda2 = PDA.fromCFG(cfg); // this is how you can convert a CFG to a PDA
 
+        System.out.println(pda);
+        System.out.println("----");
+
+        System.out.println(pda2);
+        System.out.println("----");
+
         System.out.println("Testing PDA:");
         testCFA(pda);
         System.out.println("----");

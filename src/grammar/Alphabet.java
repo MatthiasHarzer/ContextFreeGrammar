@@ -45,6 +45,10 @@ public class Alphabet implements Iterable<TerminalSymbol> {
         return symbols.stream().filter(s -> s.identifier.equals(identifier)).findFirst().orElse(null);
     }
 
+    public TerminalSymbol[] getSymbols() {
+        return symbols.toArray(TerminalSymbol[]::new);
+    }
+
     public boolean add(TerminalSymbol... symbol) {
         return symbols.addAll(Arrays.asList(symbol));
     }
@@ -64,6 +68,7 @@ public class Alphabet implements Iterable<TerminalSymbol> {
      */
     public Word parse(String input) {
         Symbol[] word = new Symbol[input.length()];
+
         for (int i = input.length() - 1; i >= 0; i--) {
             TerminalSymbol symbol = getSymbol(input.charAt(i) + "");
             if (symbol == null) return null;
@@ -71,6 +76,10 @@ public class Alphabet implements Iterable<TerminalSymbol> {
         }
         return new Word(word);
     }
+
+//    public Word parse(String input) {
+//        return parse(input, true);
+//    }
 
     @Override
     public Iterator<TerminalSymbol> iterator() {

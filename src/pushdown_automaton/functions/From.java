@@ -20,4 +20,9 @@ public record From(State state, TerminalSymbol terminalSymbol, StackSymbol stack
                 && terminalSymbol().equals(terminalSymbol)
                 && stackSymbol().equals(stackSymbol);
     }
+
+    @Override
+    public String toString() {
+        return "(" + state.identifier() + ", " + terminalSymbol + ", " + stackSymbol + ")";
+    }
 }

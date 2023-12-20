@@ -39,12 +39,23 @@ public class Production {
         return this;
     }
 
+    public Production to(Alphabet alphabet){
+        for(TerminalSymbol s : alphabet.getSymbols()){
+            this.to(s);
+        }
+        return this;
+    }
+
     public Production or(Word result) {
         return this.to(result);
     }
 
     public Production or(Symbol... symbols) {
         return this.to(symbols);
+    }
+
+    public Production or(Alphabet alphabet){
+        return this.to(alphabet.getSymbols());
     }
 
     /**
@@ -56,6 +67,14 @@ public class Production {
                 .filter(s -> s instanceof TerminalSymbol)
                 .map(s -> (TerminalSymbol) s)
                 .toArray(TerminalSymbol[]::new);
+    }
+
+    public VariableSymbol[] getVariables(){
+        return results.stream()
+                .flatMap(w -> Arrays.stream(w.symbols()))
+                .filter(s -> s instanceof VariableSymbol)
+                .map(s -> (VariableSymbol) s)
+                .toArray(VariableSymbol[]::new);
     }
 
     @Override

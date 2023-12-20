@@ -65,4 +65,9 @@ public record Function(From start, To... results) {
 
         return Stream.concat(Stream.of(start.state()), toStates.stream()).toArray(State[]::new);
     }
+
+    @Override
+    public String toString() {
+        return start.toString() + " -> " + Arrays.toString(results);
+    }
 }

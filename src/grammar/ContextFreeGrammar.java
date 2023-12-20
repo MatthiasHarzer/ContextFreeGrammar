@@ -52,8 +52,22 @@ public class ContextFreeGrammar implements ContextFreeAcceptor{
     }
 
     public boolean accepts(Word word) {
+        if (getVariablesWithoutProduction().length > 0) {
+            System.out.println("Warning: There are variables without a production!");
+        }
         PDA pda = PDA.fromCFG(this);
         return pda.accepts(word);
+    }
+
+    /**
+     * Returns all {@link VariableSymbol VariableSymbols} that do not have a production.
+     */
+    public VariableSymbol[] getVariablesWithoutProduction(){
+        return productions.values().stream()
+                .flatMap(p -> Arrays.stream(p.getVariables()))
+                .distinct()
+                .filter(v -> !productions.containsKey(v))
+                .toArray(VariableSymbol[]::new);
     }
 
 }

@@ -22,11 +22,17 @@ public class MinimalPDA implements ContextFreeAcceptor {
      */
     private final List<String[]> functions;
     private final String startState;
+    private boolean trim = true;
 
     public MinimalPDA(String startState, String startStackSymbol) {
         this.stack = startStackSymbol;
         this.functions = new ArrayList<>();
         this.startState = startState;
+    }
+
+    public MinimalPDA(String startState, String startStackSymbol, boolean trim) {
+        this(startState, startStackSymbol);
+        this.trim = trim;
     }
 
     public void addFn(
@@ -44,29 +50,35 @@ public class MinimalPDA implements ContextFreeAcceptor {
         String input = configuration[1];
         String stack = configuration[2];
 
+        if(trim){
+            input = input.strip();
+            stack = stack.strip();
+        }
+
         if (input.isEmpty() || stack.isEmpty()) {
             return new ArrayList<>();
         }
 
-        String symbol = input.substring(0, 1);
-        String stackSymbol = stack.substring(0, 1);
+//        if()
 
-        String newStack = stack.substring(1);
+
+
+
         List<String[]> configurations = new ArrayList<>();
 
         for (String[] fn : functions) {
-            if (!fn[0].equals(state) || !fn[2].equals(stackSymbol)) continue;
+            String fnStartState = fn[0];
+            String fnStartSymbol = fn[1];
+            String fnStartStackSymbol = fn[2];
+            String fnEndState = fn[3];
+            String fnEndStackSymbols = fn[4];
 
-            if (fn[1].equals(symbol)) {
-                String endState = fn[3];
-                String endStackSymbols = fn[4];
+            if (!fnStartState.equals(state) || !stack.startsWith(fnStartStackSymbol)) continue;
 
-                configurations.add(new String[]{endState, input.substring(1), endStackSymbols + newStack});
-            } else if (fn[1].isEmpty()) { // spontaneous transition
-                String endState = fn[3];
-                String endStackSymbols = fn[4];
+            String newStack = stack.substring(fnStartStackSymbol.length());
 
-                configurations.add(new String[]{endState, input, endStackSymbols + newStack});
+            if (input.startsWith(fnStartSymbol)) { // normal transition
+                configurations.add(new String[]{fnEndState, input.substring(fnStartSymbol.length()), fnEndStackSymbols + newStack});
             }
         }
 
@@ -77,6 +89,7 @@ public class MinimalPDA implements ContextFreeAcceptor {
         String[] configuration = new String[]{this.startState, input, stack};
         List<String[]> configurations = new ArrayList<>();
         configurations.add(configuration);
+        long totalConfigurations = 1;
 
         while (!configurations.isEmpty()) {
             List<String[]> newConfigurations = new ArrayList<>();
@@ -86,10 +99,15 @@ public class MinimalPDA implements ContextFreeAcceptor {
                 newConfigurations.addAll(newC);
             }
 
-            configurations = newConfigurations;
+            configurations = newConfigurations
+                    .stream().filter(c -> !c[0].isEmpty())
+                    .toList();
+
+            totalConfigurations += configurations.size();
 
             for (String[] c : configurations) {
                 if (c[1].isEmpty() && c[2].isEmpty()) {
+                    System.out.println("Total configurations: " + totalConfigurations);
                     return true;
                 }
             }

@@ -144,6 +144,28 @@ public class PDA implements ContextFreeAcceptor {
         return false;
     }
 
+    public MinimalPDA toMinimalPDA(boolean trim){
+        MinimalPDA pda = new MinimalPDA(initialState.identifier(), StackSymbol.START_SYMBOL.identifier, trim);
+
+        for (Function fn : functions) {
+            String startState = fn.start().state().identifier();
+            TerminalSymbol startTerminalSymbol = fn.start().terminalSymbol();
+            String startSymbol= startTerminalSymbol.isEpsilon() ? "" : startTerminalSymbol.identifier;
+            String startStackSymbol = fn.start().stackSymbol().identifier;
+
+            for (To result : fn.results()) {
+                String endState = result.state().identifier();
+                String endStackSymbols = Arrays.stream(result.stackSymbols())
+                        .map(s -> s.isEpsilon() ? "" : s.identifier)
+                        .reduce("", (a, b) -> a + b);
+
+                pda.addFn(startState, startSymbol, startStackSymbol, endState, endStackSymbols);
+            }
+        }
+
+        return pda;
+    }
+
     /**
      * Converts a {@link ContextFreeGrammar} to a {@link PDA
      *
@@ -188,6 +210,19 @@ public class PDA implements ContextFreeAcceptor {
 
 
         return pda;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("PDA\n");
+        sb.append("Initial state: ").append(initialState.identifier()).append("\n");
+        sb.append("Stack: ").append(stack).append("\n");
+        sb.append("Functions:\n");
+        for (Function fn : functions) {
+            sb.append(fn).append("\n");
+        }
+        return sb.toString();
     }
 
 

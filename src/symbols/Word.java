@@ -45,6 +45,16 @@ public record Word(Symbol... symbols) {
     }
 
     @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Symbol s : symbols) {
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == null) return false;
         if (!(obj.getClass() == this.getClass())) return false;
